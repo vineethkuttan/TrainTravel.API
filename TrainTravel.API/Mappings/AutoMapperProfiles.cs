@@ -9,6 +9,8 @@ namespace TrainTravel.API.Mappings
         public AutoMapperProfiles()
         {
             CreateMap<QueryTimeTable, AvailableResponseDto>();
+            CreateMap<StationInfoData, StationInfoDto>();
+            CreateMap<BookingRequestDto, BookingsData>().ReverseMap();
         }
     }
 }

@@ -20,7 +20,7 @@ namespace TrainTravel.API.Repositories
         public string CreateJWTAccessToken(TrainTravelUser user, List<string> roles)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
@@ -38,7 +38,7 @@ namespace TrainTravel.API.Repositories
         public (string accessToken, string refreshToken) CreateJWTToken(TrainTravelUser user, List<string> roles)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));

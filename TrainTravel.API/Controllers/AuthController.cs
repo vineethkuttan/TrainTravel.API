@@ -88,8 +88,7 @@ namespace TrainTravel.API.Controllers
                         var response = new LoginResponseDto
                         {
                             JwtAccessToken = jwtToken.accessToken,
-                            JwtRefreshToken = jwtToken.refreshToken,
-                            UserId = user.UserName
+                            JwtRefreshToken = jwtToken.refreshToken
                         };
                         return Ok(response);
                     }
@@ -104,7 +103,7 @@ namespace TrainTravel.API.Controllers
         [Route("TokenRefresh")]
         public async Task<IActionResult> TokenRefresh([FromBody] RefreshTokenDto refreshTokenDto)
         {
-            var user = await userManager.FindByNameAsync(refreshTokenDto.UserId);//FindByEmailAsync(loginRequestDto.Username);
+            var user = await userManager.FindByIdAsync(refreshTokenDto.UserId);//FindByEmailAsync(loginRequestDto.Username);
             //FindByEmailAsync(loginRequestDto.Username);
             if (user != null)
             {
@@ -115,8 +114,7 @@ namespace TrainTravel.API.Controllers
                     var response = new LoginResponseDto
                     {
                         JwtAccessToken = jwtToken,
-                        JwtRefreshToken = refreshTokenDto.JwtRefreshToken,
-                        UserId = user.UserName
+                        JwtRefreshToken = refreshTokenDto.JwtRefreshToken
                     };
                     return Ok(response);
                 }

@@ -6,5 +6,6 @@ namespace TrainTravel.API.Repositories
     public interface ITimeTableRepository
     {
         Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode,string ToCode);
+        Task<List<StationInfoData>> GetStationListAsync();
     }
 }

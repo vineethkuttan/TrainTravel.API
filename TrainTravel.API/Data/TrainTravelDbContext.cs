@@ -13,6 +13,8 @@ namespace TrainTravel.API.Data
         }
         public DbSet<TrainTimeTableData> TrainTimeTableData { get; set; }
         public DbSet<TrainInfoData> TrainInfoData { get; set; }
+        public DbSet<StationInfoData> StationInfoData { get; set; }
+        public DbSet<BookingsData> BookingsData { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -40,6 +42,7 @@ namespace TrainTravel.API.Data
             builder.Entity<IdentityRole>().HasData(roles);
             builder.Entity<TrainTimeTableData>().HasNoKey();
             builder.Entity<TrainInfoData>().HasNoKey();
+            builder.Entity<StationInfoData>().HasNoKey();
 
         }
     }

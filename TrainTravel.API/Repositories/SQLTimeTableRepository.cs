@@ -17,7 +17,7 @@ namespace TrainTravel.API.Repositories
             this.dbContext = dbContext;
             this.logger = logger;
         }
-        public async Task<List<QueryTimeTable>?> GetAllTimeTableAsync(string FromCode, string ToCode)
+        public async Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode, string ToCode)
         {
             var trainDataQuery = from t1 in dbContext.TrainTimeTableData
                        join t2 in dbContext.TrainTimeTableData on t1.trainNumber equals t2.trainNumber
@@ -69,5 +69,9 @@ namespace TrainTravel.API.Repositories
             return await tDataQuery.ToListAsync();
         }
 
+        public async Task<List<StationInfoData>> GetStationListAsync()
+        {
+            return await dbContext.StationInfoData.ToListAsync();
+        }
     }
 }
