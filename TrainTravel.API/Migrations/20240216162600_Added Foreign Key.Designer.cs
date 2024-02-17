@@ -12,8 +12,8 @@ using TrainTravel.API.Data;
 namespace TrainTravel.API.Migrations
 {
     [DbContext(typeof(TrainTravelDbContext))]
-    [Migration("20240210100015_Train Data")]
-    partial class TrainData
+    [Migration("20240216162600_Added Foreign Key")]
+    partial class AddedForeignKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,8 +174,183 @@ namespace TrainTravel.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.BookingsData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ArrivalDayCount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ArrivalTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DepartDayCount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DepartFrom")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DepartureTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationHaltTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Distance")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TrainName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BookingsData");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.PassengerData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("age")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("preference")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("PassengerData");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.StationInfoData", b =>
+                {
+                    b.Property<string>("stationCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("stationName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("stationCode");
+
+                    b.ToTable("StationInfoData");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.TicketData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("TicketData");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.TrainInfoData", b =>
+                {
+                    b.Property<int>("trainNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("trainNumber"));
+
+                    b.Property<string>("stationFrom")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("stationTo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnFri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnMon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnSat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnSun")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnThu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnTue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("trainRunsOnWed")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("trainNumber");
+
+                    b.ToTable("TrainInfoData");
+                });
+
             modelBuilder.Entity("TrainTravel.API.Model.Domain.TrainTimeTableData", b =>
                 {
+                    b.Property<int>("trainNumber")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("stationCode")
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnOrder(2);
+
                     b.Property<string>("arrivalTime")
                         .HasColumnType("nvarchar(max)");
 
@@ -191,17 +366,13 @@ namespace TrainTravel.API.Migrations
                     b.Property<string>("haltTime")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("stationCode")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("stationName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("trainName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("trainNumber")
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("trainNumber", "stationCode");
 
                     b.ToTable("TrainTimeTableData");
                 });
@@ -332,6 +503,50 @@ namespace TrainTravel.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.BookingsData", b =>
+                {
+                    b.HasOne("TrainTravel.API.Model.Domain.TrainTravelUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.PassengerData", b =>
+                {
+                    b.HasOne("TrainTravel.API.Model.Domain.TicketData", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.TicketData", b =>
+                {
+                    b.HasOne("TrainTravel.API.Model.Domain.BookingsData", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("TrainTravel.API.Model.Domain.TrainTimeTableData", b =>
+                {
+                    b.HasOne("TrainTravel.API.Model.Domain.TrainInfoData", "TrainInfoData")
+                        .WithMany()
+                        .HasForeignKey("trainNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TrainInfoData");
                 });
 #pragma warning restore 612, 618
         }

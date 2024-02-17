@@ -28,6 +28,9 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("TrainTravelConne
 
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ITimeTableRepository, SQLTimeTableRepository>();
+builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
+/*builder.Services.AddScoped<ITicketRepository, SQLTicketRepository>();
+builder.Services.AddScoped<IPassengerRepository, SQLPassengerRepository>();*/
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

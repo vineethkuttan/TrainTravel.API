@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TrainTravel.API.Migrations
 {
     /// <inheritdoc />
-    public partial class CreatingAuthDatabase : Migration
+    public partial class AddedTablesinDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,6 +53,59 @@ namespace TrainTravel.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StationInfoData",
+                columns: table => new
+                {
+                    stationCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    stationName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StationInfoData", x => x.stationCode);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrainInfoData",
+                columns: table => new
+                {
+                    trainNumber = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    trainName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnSun = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnMon = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnTue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnWed = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnThu = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnFri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    trainRunsOnSat = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    stationFrom = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    stationTo = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrainInfoData", x => x.trainNumber);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrainTimeTableData",
+                columns: table => new
+                {
+                    trainNumber = table.Column<int>(type: "int", nullable: false),
+                    stationCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    trainName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    departureTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    haltTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    dayCount = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    distance = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    arrivalTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    stationName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrainTimeTableData", x => new { x.trainNumber, x.stationCode });
                 });
 
             migrationBuilder.CreateTable(
@@ -161,6 +214,76 @@ namespace TrainTravel.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BookingsData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TrainName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartureTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartFrom = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartDayCount = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Distance = table.Column<int>(type: "int", nullable: false),
+                    ArrivalTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ArrivalDayCount = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DestinationHaltTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingsData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookingsData_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketData_BookingsData_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "BookingsData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PassengerData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    age = table.Column<int>(type: "int", nullable: false),
+                    preference = table.Column<int>(type: "int", nullable: false),
+                    TicketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PassengerData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PassengerData_TicketData_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "TicketData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
@@ -208,6 +331,21 @@ namespace TrainTravel.API.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingsData_UserId",
+                table: "BookingsData",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PassengerData_TicketId",
+                table: "PassengerData",
+                column: "TicketId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketData_BookingId",
+                table: "TicketData",
+                column: "BookingId");
         }
 
         /// <inheritdoc />
@@ -229,7 +367,25 @@ namespace TrainTravel.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "PassengerData");
+
+            migrationBuilder.DropTable(
+                name: "StationInfoData");
+
+            migrationBuilder.DropTable(
+                name: "TrainInfoData");
+
+            migrationBuilder.DropTable(
+                name: "TrainTimeTableData");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "TicketData");
+
+            migrationBuilder.DropTable(
+                name: "BookingsData");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

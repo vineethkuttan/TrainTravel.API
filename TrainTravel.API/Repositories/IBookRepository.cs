@@ -4,9 +4,9 @@ namespace TrainTravel.API.Repositories
 {
     public interface IBookRepository
     {
-        Task<List<BookingsData>> GetAllAsync(string userId);
-        Task<BookingsData> GetByIdAsync(Guid id);
-        Task<BookingsData> CreateAsync(BookingsData BookingData);
-        Task<BookingsData?> DeleteAsync(Guid id);
+        Task<List<BookingsData>> GetAllBookingForUserAsync(string userId);
+        Task<BookingsData> GetBookingByIdAsync(Guid id);
+        Task<BookingsData?> BookAsync(BookingsData BookingData);
+        Task<BookingsData?> DeleteBookingAsync(Guid id);
     }
 }

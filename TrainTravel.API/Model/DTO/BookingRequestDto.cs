@@ -12,5 +12,7 @@
         public string ArrivalDayCount { get; set; }
         public string Destination { get; set; }
         public string DestinationHaltTime { get; set; }
+
+
     }
 }

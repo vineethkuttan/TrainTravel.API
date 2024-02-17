@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 using TrainTravel.API.Model.Domain;
 
 namespace TrainTravel.API.Data
@@ -15,6 +16,8 @@ namespace TrainTravel.API.Data
         public DbSet<TrainInfoData> TrainInfoData { get; set; }
         public DbSet<StationInfoData> StationInfoData { get; set; }
         public DbSet<BookingsData> BookingsData { get; set; }
+        public DbSet<TicketData> TicketData { get; set; }
+        public DbSet<PassengerData> PassengerData { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -38,12 +41,9 @@ namespace TrainTravel.API.Data
                     NormalizedName="User".ToUpper()
                 }
             };
-
             builder.Entity<IdentityRole>().HasData(roles);
-            builder.Entity<TrainTimeTableData>().HasNoKey();
-            builder.Entity<TrainInfoData>().HasNoKey();
-            builder.Entity<StationInfoData>().HasNoKey();
-
+            builder.Entity<TrainTimeTableData>()
+                .HasKey(e => new { e.trainNumber, e.stationCode });
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TrainTravel.API.Model.Domain
 {
     public class BookingsData
     {
         public Guid Id { get; set; }
-        public string TrainNumber { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; }
         public string TrainName { get; set; }
         public string DepartureTime { get; set; }
         public string DepartFrom { get; set; }

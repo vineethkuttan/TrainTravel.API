@@ -1,8 +1,11 @@
-﻿namespace TrainTravel.API.Model.Domain
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TrainTravel.API.Model.Domain
 {
     public class StationInfoData
     {
-        public string? stationCode { get; set; }
+        [Key]
+        public string stationCode { get; set; }
         public string? stationName { get; set; }
     }
 }
