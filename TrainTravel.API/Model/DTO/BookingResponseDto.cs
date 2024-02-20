@@ -1,36 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace TrainTravel.API.Model.DTO
+﻿namespace TrainTravel.API.Model.DTO
 {
-    public class BookingRequestDto
+    public class BookingResponseDto
     {
-        [Required]
-        public int TrainNumber { get; set; }
-        [Required]
+        public DateTime DateOfBirth { get; set; }
         public string TrainName { get; set; }
-        [Required]
         public string DepartureTime { get; set; }
-        [Required]
         public string DepartFrom { get; set; }
-        [Required]
         public string DepartDayCount { get; set; }
-        [Required]
         public int Distance { get; set; }
-        [Required]
         public string ArrivalTime { get; set; }
-        [Required]
         public string ArrivalDayCount { get; set; }
-        [Required]
         public string Destination { get; set; }
-        [Required]
         public string DestinationHaltTime { get; set; }
-        [Required]
-        [DataType(DataType.EmailAddress)]
+        public string UserId { get; set; }
+        public Guid TicketId { get; set; }
         public string Email { get; set; }
-        [Required]
-        [DataType(DataType.Date)]
         public DateTime BookingDate { get; set; }
         public string PhoneNumber { get; set; }
-        public List<PassengerRequestDto> passengerRequests { get; set; }
+        public Guid PaasengerId { get; set; }
+        public string Name { get; set; }
+        public int age { get; set; }
+        public int? preference { get; set; }
     }
 }

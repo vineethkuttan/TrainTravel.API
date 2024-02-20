@@ -11,6 +11,9 @@ namespace TrainTravel.API.Mappings
             CreateMap<QueryTimeTable, AvailableResponseDto>();
             CreateMap<StationInfoData, StationInfoDto>();
             CreateMap<BookingRequestDto, BookingsData>().ReverseMap();
+            CreateMap<BookingRequestDto, TicketData>().ReverseMap();
+            CreateMap<PassengerRequestDto, PassengerData>().ReverseMap();
+            CreateMap<PassengerResponseDto, PassengerData>().ReverseMap();
         }
     }
 }

@@ -15,6 +15,7 @@ namespace TrainTravel.API.Repositories
         public async Task<PassengerData> CreatePassengerAsync(PassengerData PassengerData)
         {
             await dbContext.PassengerData.AddAsync(PassengerData);
+            await dbContext.SaveChangesAsync();
             return PassengerData;
         }
 

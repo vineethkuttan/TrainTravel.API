@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +24,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.
+    AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<Program>());
 builder.Services.AddDbContext<TrainTravelDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("TrainTravelConnectionString")));
 
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ITimeTableRepository, SQLTimeTableRepository>();
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
-/*builder.Services.AddScoped<ITicketRepository, SQLTicketRepository>();
-builder.Services.AddScoped<IPassengerRepository, SQLPassengerRepository>();*/
+builder.Services.AddScoped<ITicketRepository, SQLTicketRepository>();
+builder.Services.AddScoped<IPassengerRepository, SQLPassengerRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
