@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using TrainTravel.API.CustomActionFilters;
 using TrainTravel.API.Model.Domain;
 using TrainTravel.API.Model.DTO;
 using TrainTravel.API.Repositories;
@@ -21,15 +22,16 @@ namespace TrainTravel.API.Controllers
             this.timeTableRepository = timeTableRepository;
             this.mapper = mapper;
         }
-        //POST :/api/TrainTravel/Available
+        //POST :/api/TrainTravel/Available?filterOn
         [HttpPost]
         [Route("Available")]
-        public async Task<IActionResult> GetAvailable([FromBody] AvailableRequestDto availableRequestDto)
+        [ValidateModel]
+        public async Task<IActionResult> GetAvailable([FromBody] AvailableRequestDto availableRequestDto, [FromQuery] TimeSpan? arrivalTimeLessThan, [FromQuery] TimeSpan? arrivalTimeGreaterThan)
         {
             try
             {
                 int DayOfWeek = (int)availableRequestDto.Date.DayOfWeek;
-                var result = await timeTableRepository.GetAllTimeTableAsync(availableRequestDto.FromStationCode, availableRequestDto.ToStationCode);
+                var result = await timeTableRepository.GetAllTimeTableAsync(availableRequestDto.FromStationCode, availableRequestDto.ToStationCode, arrivalTimeLessThan, arrivalTimeGreaterThan);
                 if (result == null)
                 {
                     return NotFound();
@@ -37,7 +39,7 @@ namespace TrainTravel.API.Controllers
                 var Outdata = new List<QueryTimeTable>();
                 foreach (var item in result)
                 {
-                    if (item.RunningDays[DayOfWeek])
+                    if (item.RunningDays!=null && item.RunningDays[DayOfWeek] !=null && item.RunningDays[DayOfWeek].Equals(true))
                     {
                         Outdata.Add(item);
                     }

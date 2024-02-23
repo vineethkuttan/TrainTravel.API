@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TrainTravel.API.CustomActionFilters;
 using TrainTravel.API.Model.Domain;
 using TrainTravel.API.Model.DTO;
 using TrainTravel.API.Repositories;
@@ -31,12 +32,13 @@ namespace TrainTravel.API.Controllers
         //POST :/api/booking/book
         [HttpPost]
         [Route("book")]
+        [ValidateModel]
         [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> BookTrain([FromBody] BookingRequestDto bookingRequestDto)
         {
             try
             {             
-                List<PassengerResponseDto> response =new List<PassengerResponseDto>();
+                var response =new List<PassengerResponseDto>();
                 var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var bookingsDomainModel = mapper.Map<BookingsData>(bookingRequestDto);
                 bookingsDomainModel.UserId = user;
@@ -72,15 +74,61 @@ namespace TrainTravel.API.Controllers
 
         //POST :/api/booking/book
         [HttpPost]
-        [Route("{id}")]
         [Authorize(Roles = "User,Admin")]
-        public async Task<IActionResult> GetUserBookings([FromRoute] string id)
+        public async Task<IActionResult> GetUserBookings()
         {
             try
-            {           
-                id=id.ToLower();
-                var result = await bookRepository.GetAllBookingForUserAsync(id);              
-                return Ok(mapper.Map<List<BookingRequestDto>>(result));
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if(id == null)
+                {
+                    return BadRequest("Invalid user");
+                }
+                var bookingResult = await bookRepository.GetAllBookingForUserAsync(id);
+                var response = new List<BookingResponseDto>();
+                if (bookingResult != null && bookingResult.Count > 0)
+                {
+                    foreach (var booking in bookingResult)
+                    {
+                        if (booking != null && booking.Id != Guid.Empty)
+                        {
+                            var Tickets = await ticketRepository.GetAllTicketForBookingAsync(booking.Id);
+                            if (Tickets != null && Tickets.Count > 0)
+                            {
+                                foreach (var ticket in Tickets)
+                                {
+                                    if (ticket != null && ticket.Id != Guid.Empty)
+                                    {
+                                        var passengers = await passengerRepository.GetAllPassengersTicketAsync(ticket.Id);
+                                        if (passengers != null && passengers.Count > 0)
+                                        {
+                                            response.Add(new BookingResponseDto
+                                            {
+                                                TrainName = booking.TrainName,
+                                                DepartureTime = booking.DepartureTime,
+                                                DepartFrom = booking.DepartFrom,
+                                                DepartDayCount = booking.DepartDayCount,
+                                                Distance = booking.Distance,
+                                                ArrivalTime = booking.ArrivalTime,
+                                                ArrivalDayCount = booking.ArrivalDayCount,
+                                                Destination = booking.Destination,
+                                                DestinationHaltTime = booking.DestinationHaltTime,
+                                                TicketId = ticket.Id,
+                                                Email = ticket.Email,
+                                                BookingDate = ticket.BookingDate,
+                                                PhoneNumber = ticket.PhoneNumber,
+                                                passengerResponse = mapper.Map<List<PassengerResponseDto>>(passengers)
+                                            });
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+              
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -92,7 +140,8 @@ namespace TrainTravel.API.Controllers
 
         //Delete : https://localhost:port/api/booking/{id}
         [HttpDelete]
-        [Route("{id:Guid}")]
+        [Route("cancelTicket/{id:Guid}")]
+        [ValidateModel]
         [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> CancelTicket([FromRoute] Guid id)
         {
@@ -105,15 +154,23 @@ namespace TrainTravel.API.Controllers
                 if (passengerForTicket != null && passengerForTicket.Count == 0)
                 {
                     var ticketRemoved = await ticketRepository.DeleteTicketAsync(passengerRemovedTicketId);
-                    if(ticketRemoved!=null && ticketRemoved.Id!=Guid.Empty)
+                    if (ticketRemoved != null && ticketRemoved.BookingId != Guid.Empty)
                     {
-                        var bookingDomain = await bookRepository.DeleteBookingAsync(id);
+                        var bookingDomain = await bookRepository.DeleteBookingAsync(ticketRemoved.BookingId);
                         if (bookingDomain != null)
                         {
                             return Ok("Successfully Cancelled the Ticket");
                         }
                     }
-                }                
+                    else
+                    {
+                        return Ok("Deleted the ticket but not the booking");
+                    }
+                }
+                else if (passengerForTicket != null && passengerForTicket.Count > 0)
+                {
+                    return Ok("Sucessfully Deleted a Single Passenger");
+                }
             }
             return NotFound();     
         }

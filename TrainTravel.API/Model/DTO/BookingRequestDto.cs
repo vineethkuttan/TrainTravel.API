@@ -9,7 +9,7 @@ namespace TrainTravel.API.Model.DTO
         [Required]
         public string TrainName { get; set; }
         [Required]
-        public string DepartureTime { get; set; }
+        public TimeSpan DepartureTime { get; set; }
         [Required]
         public string DepartFrom { get; set; }
         [Required]
@@ -17,7 +17,7 @@ namespace TrainTravel.API.Model.DTO
         [Required]
         public int Distance { get; set; }
         [Required]
-        public string ArrivalTime { get; set; }
+        public TimeSpan ArrivalTime { get; set; }
         [Required]
         public string ArrivalDayCount { get; set; }
         [Required]

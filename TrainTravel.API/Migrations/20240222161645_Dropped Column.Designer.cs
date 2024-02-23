@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainTravel.API.Data;
 
@@ -11,9 +12,11 @@ using TrainTravel.API.Data;
 namespace TrainTravel.API.Migrations
 {
     [DbContext(typeof(TrainTravelDbContext))]
-    partial class TrainTravelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240222161645_Dropped Column")]
+    partial class DroppedColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,8 +184,9 @@ namespace TrainTravel.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("ArrivalTime")
-                        .HasColumnType("time");
+                    b.Property<string>("ArrivalTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DepartDayCount")
                         .IsRequired()
@@ -192,8 +196,9 @@ namespace TrainTravel.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("DepartureTime")
-                        .HasColumnType("time");
+                    b.Property<string>("DepartureTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Destination")
                         .IsRequired()
@@ -307,26 +312,26 @@ namespace TrainTravel.API.Migrations
                     b.Property<string>("trainName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnFri")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnFri")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnMon")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnMon")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnSat")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnSat")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnSun")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnSun")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnThu")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnThu")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnTue")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnTue")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnWed")
-                        .HasColumnType("bit");
+                    b.Property<string>("trainRunsOnWed")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("trainNumber");
 
@@ -343,17 +348,17 @@ namespace TrainTravel.API.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnOrder(2);
 
-                    b.Property<TimeSpan>("arrivalTime")
+                    b.Property<TimeSpan>("arrivalTime2")
                         .HasColumnType("time");
 
                     b.Property<string>("dayCount")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("departureTime")
+                    b.Property<TimeSpan>("departureTime2")
                         .HasColumnType("time");
 
-                    b.Property<int>("distance")
-                        .HasColumnType("int");
+                    b.Property<string>("distance")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("haltTime")
                         .HasColumnType("nvarchar(max)");

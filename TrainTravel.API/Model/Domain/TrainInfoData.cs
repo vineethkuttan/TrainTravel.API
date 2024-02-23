@@ -8,13 +8,13 @@ namespace TrainTravel.API.Model.Domain
         [Key]
         public int trainNumber { get; set; }
         public string? trainName { get; set; }
-        public string? trainRunsOnSun { get; set; }
-        public string? trainRunsOnMon { get; set; }
-        public string? trainRunsOnTue { get; set; }
-        public string? trainRunsOnWed { get; set; }
-        public string? trainRunsOnThu { get; set; }
-        public string? trainRunsOnFri { get; set; }
-        public string? trainRunsOnSat { get; set; }        
+        public bool? trainRunsOnSun { get; set; }
+        public bool? trainRunsOnMon { get; set; }
+        public bool? trainRunsOnTue { get; set; }
+        public bool? trainRunsOnWed { get; set; }
+        public bool? trainRunsOnThu { get; set; }
+        public bool? trainRunsOnFri { get; set; }
+        public bool? trainRunsOnSat { get; set; }        
         public string? stationFrom { get; set; }
         public string? stationTo { get; set; }
 

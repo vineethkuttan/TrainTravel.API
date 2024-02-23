@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var logger = new LoggerConfiguration()
     .WriteTo.Console()
+    .WriteTo.File("Logs/TrainTravel_log.txt",rollingInterval:RollingInterval.Day)
     .MinimumLevel.Information()
     .CreateLogger();
 // Add services to the container.

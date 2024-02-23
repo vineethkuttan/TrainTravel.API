@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainTravel.API.Data;
 
@@ -11,9 +12,11 @@ using TrainTravel.API.Data;
 namespace TrainTravel.API.Migrations
 {
     [DbContext(typeof(TrainTravelDbContext))]
-    partial class TrainTravelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240223001827_Added bool for TrainRunningDays")]
+    partial class AddedboolforTrainRunningDays
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,25 +310,46 @@ namespace TrainTravel.API.Migrations
                     b.Property<string>("trainName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("trainRunsOnFri")
+                    b.Property<string>("trainRunsOnFri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnFri2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnMon")
+                    b.Property<string>("trainRunsOnMon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnMon2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnSat")
+                    b.Property<string>("trainRunsOnSat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnSat2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnSun")
+                    b.Property<string>("trainRunsOnSun")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnSun2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnThu")
+                    b.Property<string>("trainRunsOnThu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnThu2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnTue")
+                    b.Property<string>("trainRunsOnTue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnTue2")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("trainRunsOnWed")
+                    b.Property<string>("trainRunsOnWed")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("trainRunsOnWed2")
                         .HasColumnType("bit");
 
                     b.HasKey("trainNumber");

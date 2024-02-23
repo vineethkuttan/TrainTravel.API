@@ -13,11 +13,11 @@ namespace TrainTravel.API.Model.Domain
         [Column(Order = 2)]
         public string stationCode { get; set; }
         public string? trainName { get; set; }
-        public string? departureTime { get; set; }        
+        public TimeSpan departureTime { get; set; }
         public string? haltTime { get; set; }
         public string? dayCount { get; set; }
-        public string? distance { get; set; }
-        public string? arrivalTime { get; set; }
+        public int distance { get; set; }
+        public TimeSpan arrivalTime { get; set; }
         public string? stationName { get; set; }
         [ForeignKey("trainNumber")]
         public TrainInfoData TrainInfoData { get; set; }

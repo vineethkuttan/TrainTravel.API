@@ -17,14 +17,14 @@ namespace TrainTravel.API.Repositories
             this.dbContext = dbContext;
             this.logger = logger;
         }
-        public async Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode, string ToCode)
+        public async Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode, string ToCode, TimeSpan? arrivalTimeLessThan = null, TimeSpan? arrivalTimeGreaterThan = null)
         {
             var trainDataQuery = from t1 in dbContext.TrainTimeTableData
                        join t2 in dbContext.TrainTimeTableData on t1.trainNumber equals t2.trainNumber
-                       where t1.departureTime != "--" &&
+                       where t1.departureTime != TimeSpan.Parse("00:00") &&
                              t1.stationCode == FromCode &&
                              t2.stationCode == ToCode &&
-                             ((string.Compare(t1.departureTime, t2.departureTime)<0 && t1.dayCount == t2.dayCount) ||
+                             ((t1.departureTime < t2.departureTime && t1.dayCount == t2.dayCount) ||
                               string.Compare(t1.dayCount,t2.dayCount)<0)
                        select new 
                        {
@@ -33,7 +33,7 @@ namespace TrainTravel.API.Repositories
                            DepartureTime = t1.departureTime,
                            DepartFrom = t1.stationName,
                            DepartDayCount = t1.dayCount,
-                           Distance = int.Parse(t2.distance) - int.Parse(t1.distance),
+                           Distance = t2.distance - t1.distance,
                            ArrivalTime = t2.arrivalTime,
                            ArrivalDayCount = t2.dayCount,
                            Destination = t2.stationName,
@@ -53,20 +53,26 @@ namespace TrainTravel.API.Repositories
                                  ArrivalDayCount = td.ArrivalDayCount,
                                  Destination = td.Destination,
                                  DestinationHaltTime = td.DestinationHaltTime,
-                                 RunningDays = new List<bool>
+                                 RunningDays = new List<bool?>
                                  {
-                                     String.Equals(ti.trainRunsOnSun, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnMon, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnTue, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnWed, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnThu, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnFri, "y", StringComparison.OrdinalIgnoreCase),
-                                     String.Equals(ti.trainRunsOnSat, "y", StringComparison.OrdinalIgnoreCase)
+                                     ti.trainRunsOnSun,
+                                     ti.trainRunsOnMon,
+                                     ti.trainRunsOnTue,
+                                     ti.trainRunsOnWed,
+                                     ti.trainRunsOnThu,
+                                     ti.trainRunsOnFri,
+                                     ti.trainRunsOnSat
                                  }
                                  
                              };
 
-            return await tDataQuery.ToListAsync();
+            var result =tDataQuery.AsQueryable();
+            //Filtering
+            if(arrivalTimeGreaterThan != null)
+            {
+                result = result.Where(x => x.ArrivalTime > arrivalTimeGreaterThan);
+            }
+            return await result.ToListAsync();
         }
 
         public async Task<List<StationInfoData>> GetStationListAsync()
