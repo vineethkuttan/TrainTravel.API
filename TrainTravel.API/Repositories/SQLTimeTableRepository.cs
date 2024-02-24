@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics;
+using System;
 using TrainTravel.API.Controllers;
 using TrainTravel.API.Data;
 using TrainTravel.API.Model.Domain;
@@ -17,11 +19,16 @@ namespace TrainTravel.API.Repositories
             this.dbContext = dbContext;
             this.logger = logger;
         }
-        public async Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode, string ToCode, TimeSpan? arrivalTimeLessThan = null, TimeSpan? arrivalTimeGreaterThan = null)
+        public async Task<List<QueryTimeTable>> GetAllTimeTableAsync(string FromCode, string ToCode,
+            DateTime DayOfWeek,
+            int pageNumber, int pageSize,
+            TimeSpan? arrivalTime = null, TimeSpan? departureTime = null, 
+            bool? arrivalTimeGreaterthan = true, bool? departureTimeGreaterthan = true,
+            bool? sortByArrivalTime = true, bool? sortByDepartTime = false)
         {
             var trainDataQuery = from t1 in dbContext.TrainTimeTableData
                        join t2 in dbContext.TrainTimeTableData on t1.trainNumber equals t2.trainNumber
-                       where t1.departureTime != TimeSpan.Parse("00:00") &&
+                       where t1.departureTime != TimeSpan.Zero &&
                              t1.stationCode == FromCode &&
                              t2.stationCode == ToCode &&
                              ((t1.departureTime < t2.departureTime && t1.dayCount == t2.dayCount) ||
@@ -39,8 +46,25 @@ namespace TrainTravel.API.Repositories
                            Destination = t2.stationName,
                            DestinationHaltTime = t2.haltTime
                        };
+            var trainInfoData = from t1 in dbContext.TrainInfoData
+                                where (DayOfWeek.DayOfWeek ==System.DayOfWeek.Sunday)?
+                                        t1.trainRunsOnSun==true:
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Monday) ?
+                                        t1.trainRunsOnMon == true :
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Tuesday) ?
+                                        t1.trainRunsOnTue == true :
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Wednesday) ?
+                                        t1.trainRunsOnWed == true :
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Thursday) ?
+                                        t1.trainRunsOnThu == true :
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Friday) ?
+                                        t1.trainRunsOnFri == true :
+                                        (DayOfWeek.DayOfWeek == System.DayOfWeek.Saturday) ?
+                                        t1.trainRunsOnSat == true :
+                                        false                                   
+                                select t1;
             var tDataQuery = from td in trainDataQuery
-                             join ti in dbContext.TrainInfoData on td.TrainNumber equals ti.trainNumber                       
+                             join ti in trainInfoData on td.TrainNumber equals ti.trainNumber                       
                              select new QueryTimeTable
                              {
                                  TrainNumber = td.TrainNumber,
@@ -63,21 +87,41 @@ namespace TrainTravel.API.Repositories
                                      ti.trainRunsOnFri,
                                      ti.trainRunsOnSat
                                  }
-                                 
                              };
+            var result = tDataQuery.AsQueryable();
 
-            var result =tDataQuery.AsQueryable();
             //Filtering
-            if(arrivalTimeGreaterThan != null)
+            if (arrivalTime != null && arrivalTime != TimeSpan.Zero)
             {
-                result = result.Where(x => x.ArrivalTime > arrivalTimeGreaterThan);
+                if (arrivalTimeGreaterthan != null && arrivalTimeGreaterthan == true)
+                    result = result.Where(x => x.ArrivalTime > arrivalTime);
+                else
+                    result = result.Where(x => x.ArrivalTime < arrivalTime);
             }
-            return await result.ToListAsync();
-        }
+            if (departureTime != null && departureTime != TimeSpan.Zero)
+            {
+                if (departureTime != null && departureTimeGreaterthan == true)
+                    result = result.Where(x => x.DepartureTime > departureTime);
+                else
+                    result = result.Where(x => x.DepartureTime < departureTime);
+            }
 
+            //Sorting
+
+            if (sortByArrivalTime != null)
+                result = sortByArrivalTime==true ? result.OrderBy(x => x.ArrivalTime) : result.OrderByDescending(x => x.ArrivalTime);
+
+            if(sortByDepartTime!=null)
+                result = sortByDepartTime == true ? result.OrderBy(x => x.DepartureTime) : result.OrderByDescending(x => x.DepartureTime);
+
+            //Pagination
+            var skikresults = (pageNumber - 1) * pageSize;
+            return await result.Skip(skikresults).Take(pageSize).ToListAsync();
+        }
         public async Task<List<StationInfoData>> GetStationListAsync()
         {
             return await dbContext.StationInfoData.ToListAsync();
         }
+
     }
 }

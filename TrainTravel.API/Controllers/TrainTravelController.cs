@@ -26,54 +26,49 @@ namespace TrainTravel.API.Controllers
         [HttpPost]
         [Route("Available")]
         [ValidateModel]
-        public async Task<IActionResult> GetAvailable([FromBody] AvailableRequestDto availableRequestDto, [FromQuery] TimeSpan? arrivalTimeLessThan, [FromQuery] TimeSpan? arrivalTimeGreaterThan)
-        {
-            try
+        public async Task<IActionResult> GetAvailable([FromBody] AvailableRequestDto availableRequestDto, [FromQuery] string? arrivalTime, [FromQuery] string? departureTime, 
+            [FromQuery] bool? sortByArrivalTime, [FromQuery] bool? sortByDepartTime,
+            [FromQuery] bool? arrivalTimeGreaterthan=true,[FromQuery] bool? departureTimeGreaterthan = true,
+            [FromQuery] int pageNumber=1,[FromQuery] int pageSize = 1000
+            )
+        {            
+            int DayOfWeek = (int)availableRequestDto.Date.DayOfWeek;
+            var arrivalTimeSpan = new TimeSpan();
+            var departureTimeSpan = new TimeSpan();
+            if (arrivalTime != null)
             {
-                int DayOfWeek = (int)availableRequestDto.Date.DayOfWeek;
-                var result = await timeTableRepository.GetAllTimeTableAsync(availableRequestDto.FromStationCode, availableRequestDto.ToStationCode, arrivalTimeLessThan, arrivalTimeGreaterThan);
-                if (result == null)
-                {
-                    return NotFound();
-                }
-                var Outdata = new List<QueryTimeTable>();
-                foreach (var item in result)
-                {
-                    if (item.RunningDays!=null && item.RunningDays[DayOfWeek] !=null && item.RunningDays[DayOfWeek].Equals(true))
-                    {
-                        Outdata.Add(item);
-                    }
-                }
-                logger.LogInformation($"The Count of available val from DB {result.Count} and count of available val send in response {Outdata.Count}");
-                return Ok(mapper.Map<List<AvailableResponseDto>>(Outdata));
+                TimeSpan.TryParse(arrivalTime, out arrivalTimeSpan);
+                logger.LogInformation($"Given Value for arrivalTime:{arrivalTime} and parsed Timespan:{arrivalTimeSpan}");
             }
-            catch (Exception ex)
+            if (departureTime != null)
             {
-                logger.LogError(ex, ex.Message);
-                return BadRequest(ex.Message);
+                TimeSpan.TryParse(departureTime, out departureTimeSpan);
+                logger.LogInformation($"Given Value for departureTime:{departureTime} and parsed Timespan:{departureTimeSpan}");
             }
+            var result = await timeTableRepository.GetAllTimeTableAsync(availableRequestDto.FromStationCode,availableRequestDto.ToStationCode,
+                availableRequestDto.Date,pageNumber, pageSize,
+                arrivalTimeSpan, departureTimeSpan, arrivalTimeGreaterthan,departureTimeGreaterthan ,
+                sortByArrivalTime, sortByDepartTime);
+            if (result == null)
+            {
+                return NotFound();
+            }                
+            logger.LogInformation($"The Count of available val from DB {result.Count} and count of available val send in response {result.Count}");
+            return Ok(mapper.Map<List<AvailableResponseDto>>(result));            
         }
 
         //Get :/api/TrainTravel/ListAll
         [HttpGet]
         [Route("ListAll")]
         public async Task<IActionResult> GetStationList()
-        {
-            try
+        {           
+            var result = await timeTableRepository.GetStationListAsync();
+            if (result == null)
             {
-                var result = await timeTableRepository.GetStationListAsync();
-                if (result == null)
-                {
-                    return NotFound();
-                }
-                logger.LogInformation($"The Count of return Station Info from DB {result.Count}");
-                return Ok(mapper.Map<List<StationInfoDto>>(result));
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, ex.Message);
-                return BadRequest(ex.Message);
-            }
+            logger.LogInformation($"The Count of return Station Info from DB {result.Count}");
+            return Ok(mapper.Map<List<StationInfoDto>>(result));            
         }
     }
 }

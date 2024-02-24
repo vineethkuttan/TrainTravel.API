@@ -35,106 +35,89 @@ namespace TrainTravel.API.Controllers
         [ValidateModel]
         [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> BookTrain([FromBody] BookingRequestDto bookingRequestDto)
-        {
-            try
-            {             
-                var response =new List<PassengerResponseDto>();
-                var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var bookingsDomainModel = mapper.Map<BookingsData>(bookingRequestDto);
-                bookingsDomainModel.UserId = user;
-                var bookingResult = await bookRepository.BookAsync(bookingsDomainModel);
-                if(bookingResult!=null && bookingResult.Id != Guid.Empty) 
+        {                         
+            var response =new List<PassengerResponseDto>();
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var bookingsDomainModel = mapper.Map<BookingsData>(bookingRequestDto);
+            bookingsDomainModel.UserId = user;
+            var bookingResult = await bookRepository.BookAsync(bookingsDomainModel);
+            if(bookingResult!=null && bookingResult.Id != Guid.Empty) 
+            {
+                var ticketDomainModel = mapper.Map<TicketData>(bookingRequestDto);
+                ticketDomainModel.BookingId= bookingResult.Id;
+                var ticketResult = await ticketRepository.CreateTicketAsync(ticketDomainModel);           
+                if (ticketResult != null && ticketResult.Id != Guid.Empty)
                 {
-                    var ticketDomainModel = mapper.Map<TicketData>(bookingRequestDto);
-                    ticketDomainModel.BookingId= bookingResult.Id;
-                    var ticketResult = await ticketRepository.CreateTicketAsync(ticketDomainModel);           
-                    if (ticketResult != null && ticketResult.Id != Guid.Empty)
+                    foreach (var passenger in bookingRequestDto.passengerRequests)
                     {
-                        foreach (var passenger in bookingRequestDto.passengerRequests)
+                        var passengerDomainModel = mapper.Map<PassengerData>(passenger);
+                        passengerDomainModel.TicketId=ticketDomainModel.Id;
+                        var passengerResult=await passengerRepository.CreatePassengerAsync(passengerDomainModel);
+                        if(passengerResult!=null)
                         {
-                            var passengerDomainModel = mapper.Map<PassengerData>(passenger);
-                            passengerDomainModel.TicketId=ticketDomainModel.Id;
-                            var passengerResult=await passengerRepository.CreatePassengerAsync(passengerDomainModel);
-                            if(passengerResult!=null)
-                            {
 
-                                response.Add(mapper.Map<PassengerResponseDto>(passengerResult));
-                            }
+                            response.Add(mapper.Map<PassengerResponseDto>(passengerResult));
                         }
                     }
                 }
-                return Ok("");
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, ex.Message);
-                return BadRequest(ex.Message);
-            }
+            return Ok("");            
         }
 
         //POST :/api/booking/book
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> GetUserBookings()
-        {
-            try
+        {            
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(id == null)
             {
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if(id == null)
+                return BadRequest("Invalid user");
+            }
+            var bookingResult = await bookRepository.GetAllBookingForUserAsync(id);
+            var response = new List<BookingResponseDto>();
+            if (bookingResult != null && bookingResult.Count > 0)
+            {
+                foreach (var booking in bookingResult)
                 {
-                    return BadRequest("Invalid user");
-                }
-                var bookingResult = await bookRepository.GetAllBookingForUserAsync(id);
-                var response = new List<BookingResponseDto>();
-                if (bookingResult != null && bookingResult.Count > 0)
-                {
-                    foreach (var booking in bookingResult)
+                    if (booking != null && booking.Id != Guid.Empty)
                     {
-                        if (booking != null && booking.Id != Guid.Empty)
+                        var Tickets = await ticketRepository.GetAllTicketForBookingAsync(booking.Id);
+                        if (Tickets != null && Tickets.Count > 0)
                         {
-                            var Tickets = await ticketRepository.GetAllTicketForBookingAsync(booking.Id);
-                            if (Tickets != null && Tickets.Count > 0)
+                            foreach (var ticket in Tickets)
                             {
-                                foreach (var ticket in Tickets)
+                                if (ticket != null && ticket.Id != Guid.Empty)
                                 {
-                                    if (ticket != null && ticket.Id != Guid.Empty)
+                                    var passengers = await passengerRepository.GetAllPassengersTicketAsync(ticket.Id);
+                                    if (passengers != null && passengers.Count > 0)
                                     {
-                                        var passengers = await passengerRepository.GetAllPassengersTicketAsync(ticket.Id);
-                                        if (passengers != null && passengers.Count > 0)
+                                        response.Add(new BookingResponseDto
                                         {
-                                            response.Add(new BookingResponseDto
-                                            {
-                                                TrainName = booking.TrainName,
-                                                DepartureTime = booking.DepartureTime,
-                                                DepartFrom = booking.DepartFrom,
-                                                DepartDayCount = booking.DepartDayCount,
-                                                Distance = booking.Distance,
-                                                ArrivalTime = booking.ArrivalTime,
-                                                ArrivalDayCount = booking.ArrivalDayCount,
-                                                Destination = booking.Destination,
-                                                DestinationHaltTime = booking.DestinationHaltTime,
-                                                TicketId = ticket.Id,
-                                                Email = ticket.Email,
-                                                BookingDate = ticket.BookingDate,
-                                                PhoneNumber = ticket.PhoneNumber,
-                                                passengerResponse = mapper.Map<List<PassengerResponseDto>>(passengers)
-                                            });
+                                            TrainName = booking.TrainName,
+                                            DepartureTime = booking.DepartureTime,
+                                            DepartFrom = booking.DepartFrom,
+                                            DepartDayCount = booking.DepartDayCount,
+                                            Distance = booking.Distance,
+                                            ArrivalTime = booking.ArrivalTime,
+                                            ArrivalDayCount = booking.ArrivalDayCount,
+                                            Destination = booking.Destination,
+                                            DestinationHaltTime = booking.DestinationHaltTime,
+                                            TicketId = ticket.Id,
+                                            Email = ticket.Email,
+                                            BookingDate = ticket.BookingDate,
+                                            PhoneNumber = ticket.PhoneNumber,
+                                            passengerResponse = mapper.Map<List<PassengerResponseDto>>(passengers)
+                                        });
 
-                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-              
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, ex.Message);
-                return BadRequest(ex.Message);
-            }
+            }              
+            return Ok(response);            
         }
 
 
